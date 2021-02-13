@@ -16,7 +16,7 @@ const render = function() {
   todoList.textContent = '';
   todoCompleted.textContent = '';
 
-  todoData.forEach(function(item){
+  todoData.forEach(function(item, index){
     const li = document.createElement('li');
     li.classList.add('todo-item');
 
@@ -42,8 +42,8 @@ const render = function() {
     });
 
     btnTodoRemove.addEventListener('click', function() {
-      const deleteIndex = todoData.indexOf(item);
-      todoData.splice(deleteIndex, 1);
+      todoData.splice(index, 1);
+      setInStorage();
       render();
     });
 
