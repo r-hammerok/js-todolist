@@ -1,74 +1,107 @@
 'use strict';
 
-const
-  todoControl = document.querySelector('.todo-control'),
-  headerInput = document.querySelector('.header-input'),
-  todoList = document.querySelector('.todo-list'),
-  todoCompleted = document.querySelector('.todo-completed');
 
-let todoData = [];
+class Todo {
+  constructor(form, input, todoList, todoCompleted) {
+    this.form = document.querySelector(form);
+    this.input = document.querySelector(input);
+    this.todoList = document.querySelector(todoList);
+    this.todoCompleted = document.querySelector(todoCompleted);
+    this.todoData = new Map(JSON.parse(localStorage.getItem('toDoList')));
+  }
 
-const setInStorage = function() {
-  localStorage.todoData = JSON.stringify(todoData);
-};
+  addToStorage() {
+    localStorage.setItem('toDoList', JSON.stringify([...this.todoData]));
+  }
 
-const render = function() {
-  todoList.textContent = '';
-  todoCompleted.textContent = '';
+  render() {
+    this.todoList.textContent = '';
+    this.todoCompleted.textContent = '';
+    this.todoData.forEach(this.createItem, this);
+    this.addToStorage();
+  }
 
-  todoData.forEach(function(item, index){
+  createItem(todo) {
     const li = document.createElement('li');
     li.classList.add('todo-item');
+    li.key = todo.key;
+    li.insertAdjacentHTML('beforeend', `
+      <span class="text-todo">${todo.value}</span>
+      <div class="todo-buttons">
+        <button class="todo-remove"></button>
+        <button class="todo-complete"></button>
+      </div>
+    `);
 
-    li.innerHTML = '<span class="text-todo">' + item.value + '</span>' +
-        '<div class="todo-buttons">' + 
-          '<button class="todo-remove"></button>' +
-          '<button class="todo-complete"></button>' +
-        '</div>';
-    
-    if (item.completed) {
-      todoCompleted.append(li);
+    if (todo.completed) {
+      this.todoCompleted.append(li)
     } else {
-      todoList.append(li);
+      this.todoList.append(li);
     }
+  }
 
-    const 
-      btnTodoComplete = li.querySelector('.todo-complete'),
-      btnTodoRemove = li.querySelector('.todo-remove');
+  addTodo(event) {
+    event.preventDefault();
+    if (this.input.value.trim()) {
+      const newTodo = {
+        value: this.input.value.trim(),
+        completed: false,
+        key: this.generateKey()
+      };
+      this.todoData.set(newTodo.key, newTodo);
+      this.input.value = '';
+      this.render();
+    } else {
+      alert('Нельзя добавить пустое дело!');
+    }
+  }
 
-    btnTodoComplete.addEventListener('click', function() {
+  generateKey() {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+
+  deleteItem(key) {
+    if (this.todoData.delete(key)) {
+      this.render();
+    }
+  }
+
+  completeItem(key) {
+    if (this.todoData.has(key)) {
+      const item = this.todoData.get(key);
       item.completed = !item.completed;
-      render();
-    });
-
-    btnTodoRemove.addEventListener('click', function() {
-      todoData.splice(index, 1);
-      setInStorage();
-      render();
-    });
-
-    setInStorage();
-
-  });
-};
-
-todoControl.addEventListener('submit', function(event) {
-  event.preventDefault();
-
-  if (headerInput.value.trim() !== '') {
-    const newTodo = {
-      value: headerInput.value,
-      completed: false
-    };
-    todoData.push(newTodo);
-    headerInput.value = '';
-    render();
+      this.todoData.set(key, item);
+      this.render();
+    }
   }
-});
 
-document.addEventListener('DOMContentLoaded', function() {
-  if (localStorage.todoData !== undefined) {
-    todoData = JSON.parse(localStorage.todoData);
+  handler() {
+    this.todoList.parentNode.addEventListener('click', (event) => {
+      const target = event.target;
+
+      if (target.tagName === 'BUTTON') {
+        const key = target.closest('.todo-item').key;
+        if (key) {
+          if (target.classList.contains('todo-remove')) {
+            this.deleteItem(key);
+          }
+          if (target.classList.contains('todo-complete')) {
+            this.completeItem(key);
+          }
+        }
+      }
+      
+    });
   }
-  render();
-});
+
+  init() {
+    this.form.addEventListener('submit', this.addTodo.bind(this));
+    this.handler();
+    this.render();
+  }
+
+}
+
+const todo = new Todo('.todo-control', '.header-input', '.todo-list', '.todo-completed');
+
+todo.init();
