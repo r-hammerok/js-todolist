@@ -34,7 +34,7 @@ class Todo {
     `);
 
     if (todo.completed) {
-      this.todoCompleted.append(li)
+      this.todoCompleted.append(li);
     } else {
       this.todoList.append(li);
     }
@@ -60,10 +60,44 @@ class Todo {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 
-  deleteItem(key) {
-    if (this.todoData.delete(key)) {
+  deleteItem(item) {
+    if (this.todoData.delete(item.key)) {
+      let opacity = 1, idRequest;
+      const opacityItem = () => {
+        idRequest = requestAnimationFrame(opacityItem);
+  
+        item.style.opacity = opacity;
+        opacity -= 0.065;
+  
+        if (opacity < 0) {
+          cancelAnimationFrame(idRequest);
+          return;
+        }
+      };
+      opacityItem();
+
       this.render();
     }
+
+    // if (this.todoData.delete(key)) {
+    //   this.render();
+    // }
+  }
+
+  animationDeleteItem(item) {
+    let opacity = 1, idRequest;
+
+    const opacityItem = () => {
+      opacity -= 0.01;
+      if (opacity < 0) {
+        item.style.opacity = 0;
+        cancelAnimationFrame(idRequest);
+        return;
+      }
+      item.style.opacity = opacity;
+      idRequest = requestAnimationFrame(opacityItem);
+    };
+    opacityItem();
   }
 
   completeItem(key) {
@@ -80,13 +114,15 @@ class Todo {
       const target = event.target;
 
       if (target.tagName === 'BUTTON') {
-        const key = target.closest('.todo-item').key;
-        if (key) {
+        const li = target.closest('.todo-item');
+        // const key = target.closest('.todo-item').key;
+        if (li.key) {
           if (target.classList.contains('todo-remove')) {
-            this.deleteItem(key);
+            // this.animationDeleteItem(li);
+            this.deleteItem(li);
           }
           if (target.classList.contains('todo-complete')) {
-            this.completeItem(key);
+            // this.completeItem(key);
           }
         }
       }
