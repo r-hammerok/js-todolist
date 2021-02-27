@@ -3,11 +3,12 @@
 
 class Todo {
   constructor(form, input, todoList, todoCompleted) {
+    this.classTodoCompleted = todoCompleted;
     this.form = document.querySelector(form);
     this.input = document.querySelector(input);
     this.todoList = document.querySelector(todoList);
-    this.todoCompleted = document.querySelector(todoCompleted),
-    this.todoContainer = this.todoList.parentNode,
+    this.todoCompleted = document.querySelector(todoCompleted);
+    this.todoContainer = this.todoList.parentNode;
     this.todoData = new Map(JSON.parse(localStorage.getItem('toDoList')));
   }
 
@@ -21,6 +22,22 @@ class Todo {
     this.todoData.forEach(this.createItem, this);
     this.addToStorage();
   }
+
+  // modifyTodoDataItem(li, removeItem = false) {
+  //   if (!li.key) {
+  //     return;
+  //   }
+  //   if (!removeItem) {
+  //     const newTodo = {
+  //       value: li.querySelector('.text-todo').textContent,
+  //       complete: !!li.closest(this.classTodoCompleted),
+  //       key: li.key
+  //     };
+  //     this.todoData.set(newTodo.key, newTodo);
+  //   } else {
+  //     this.todoData.delete(li.key);
+  //   }
+  // }
 
   createItem(todo) {
     const li = document.createElement('li');
