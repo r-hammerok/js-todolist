@@ -23,22 +23,6 @@ class Todo {
     this.addToStorage();
   }
 
-  // modifyTodoDataItem(li, removeItem = false) {
-  //   if (!li.key) {
-  //     return;
-  //   }
-  //   if (!removeItem) {
-  //     const newTodo = {
-  //       value: li.querySelector('.text-todo').textContent,
-  //       complete: !!li.closest(this.classTodoCompleted),
-  //       key: li.key
-  //     };
-  //     this.todoData.set(newTodo.key, newTodo);
-  //   } else {
-  //     this.todoData.delete(li.key);
-  //   }
-  // }
-
   createItem(todo) {
     const li = document.createElement('li');
     li.classList.add('todo-item');
